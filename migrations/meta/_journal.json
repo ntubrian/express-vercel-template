@@ -36,6 +36,13 @@
       "when": 1725703152938,
       "tag": "0004_short_baron_strucker",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1725716896317,
+      "tag": "0005_rich_valkyrie",
+      "breakpoints": true
     }
   ]
 }

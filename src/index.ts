@@ -66,11 +66,46 @@ app.get("/fetchUserData", async (req, res) => {
 app.get("/fetchActivities", async (req, res) => {
   try {
     const activities = await db
-      .select()
+      .select({
+        activity: activitiesTable,
+        proposal: {
+          id: proposalsTable.id,
+          description: proposalsTable.description,
+          userId: proposalsTable.userId,
+          status: proposalsTable.status,
+        },
+        user: {
+          id: usersTable.id,
+          name: usersTable.name, // Assuming there's a name field in the users table
+        },
+      })
       .from(activitiesTable)
+      .leftJoin(
+        proposalsTable,
+        eq(activitiesTable.proposalId, proposalsTable.id)
+      )
+      .leftJoin(usersTable, eq(proposalsTable.userId, usersTable.id))
       .orderBy(activitiesTable.createdAt)
       .limit(99);
-    res.status(200).json(activities);
+
+    const canvasDrafts = activities.map(({ activity, proposal, user }) => ({
+      id: activity.id,
+      name:
+        proposal?.description || `Activity for Proposal ${activity.proposalId}`,
+      introduction: activity.description,
+      address: {
+        text: "臺北市中山區圓山里8鄰中山北路三段181號",
+        map: "https://maps.app.goo.gl/sQKx4n3WctXuS5Bw8",
+        longitude: "123",
+        latitude: "132",
+      },
+      img_url: activity.image,
+      start: activity.createdAt.toISOString(),
+      status: proposal?.status,
+      author: user?.name || "Unknown",
+    }));
+
+    res.status(200).json(canvasDrafts);
   } catch (error) {
     console.error("Error adding post:", error);
     res.status(500).json({ error: "Internal server error" });
