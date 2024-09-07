@@ -33,6 +33,7 @@ export const postsTable = pgTable("posts_table", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
+    .defaultNow()
     .$onUpdate(() => new Date()),
 });
 export const proposalsTable = pgTable("proposals_table", {
@@ -46,6 +47,7 @@ export const proposalsTable = pgTable("proposals_table", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
+    .defaultNow()
     .$onUpdate(() => new Date()),
 });
 export const activitiesTable = pgTable("activities_table", {
@@ -58,6 +60,7 @@ export const activitiesTable = pgTable("activities_table", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
+    .defaultNow()
     .$onUpdate(() => new Date()),
 });
 export const commentsTable = pgTable("comments_table", {
@@ -72,6 +75,7 @@ export const commentsTable = pgTable("comments_table", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
+    .defaultNow()
     .$onUpdate(() => new Date()),
 });
 export const likesTable = pgTable(
