@@ -63,12 +63,13 @@ app.get("/fetchUserData", async (req, res) => {
   }
 });
 
-app.get("/fetchActivities", async (req, res) => {
+app.get("/fetchProposals", async (req, res) => {
   try {
     const proposals = await db
       .select({
         proposal: {
           id: proposalsTable.id,
+          name: proposalsTable.name,
           description: proposalsTable.description,
           image: proposalsTable.image,
           userId: proposalsTable.userId,
@@ -87,14 +88,8 @@ app.get("/fetchActivities", async (req, res) => {
 
     const canvasDrafts = proposals.map(({ proposal, user }) => ({
       id: proposal.id,
-      name: proposal.description,
+      name: proposal.name,
       introduction: proposal.description,
-      address: {
-        text: "臺北市中山區圓山里8鄰中山北路三段181號",
-        map: "https://maps.app.goo.gl/sQKx4n3WctXuS5Bw8",
-        longitude: "123",
-        latitude: "132",
-      },
       img_url: proposal.image,
       start: proposal.createdAt.toISOString(),
       status: proposal.status,
