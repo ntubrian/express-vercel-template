@@ -2,7 +2,7 @@ import express, { NextFunction } from 'express'
 import cors from 'cors'
 import {neon} from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
-import { InsertProposal, proposalsTable } from './schema.js';
+import { InsertActivity, InsertProposal, proposalsTable, activitiesTable } from './schema.js';
 import dotenv from 'dotenv'
 
 dotenv.config();
@@ -26,19 +26,40 @@ app.get('/api/v1/users', (req, res) => {
 
 app.post('/createProposal', async (req, res) => {
   try {
-    const { text, image }: InsertProposal = req.body;
+    const { description, image, author }: InsertProposal = req.body;
 
     // Validate input
-    if (!text || !image) {
+    if (!description || !image || !author) {
       return res.status(400).json({ error: 'Description and image are required' });
     }
 
-    // Insert new user
+    // Insert new proposal
     const newProposal = await db.insert(proposalsTable)
-      .values({ text, image })
+      .values({ description, image, author })
       .returning();
 
     res.status(201).json(newProposal[0]);
+  } catch (error) {
+    console.error('Error adding user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+})
+
+app.post('/createActivity', async (req, res) => {
+  try {
+    const { description, image, proposalId }: InsertActivity = req.body;
+
+    // Validate input
+    if (!description || !image || !proposalId) {
+      return res.status(400).json({ error: 'Description, image and proposal ID are required' });
+    }
+
+    // Insert new user
+    const newActivity = await db.insert(activitiesTable)
+      .values({ description, image, proposalId })
+      .returning();
+
+    res.status(201).json(newActivity[0]);
   } catch (error) {
     console.error('Error adding user:', error);
     res.status(500).json({ error: 'Internal server error' });
