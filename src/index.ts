@@ -20,13 +20,13 @@ import {
   SelectPost,
   SelectComment,
 } from "./schema.js";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql);
+const neonsql = neon(process.env.DATABASE_URL!);
+const db = drizzle(neonsql);
 const app = express();
 
 app.use(express.json());
@@ -105,10 +105,25 @@ app.get("/fetchProposals", async (req, res) => {
 
 app.get("/fetchPosts", async (req, res) => {
   try {
-    const { proposalId }: SelectPost = req.body;
+    const { proposalId, userId } = req.body;
     const posts = await db
-      .select()
+      .select({
+        post: {
+          id: postsTable.id,
+          name: postsTable.name,
+          introduction: postsTable.description,
+          proposal: proposalsTable.name,
+          likes: postsTable.likes,
+          liked: sql`CASE WHEN ${likesTable.userId} IS NOT NULL THEN true ELSE false END`.as('liked'), // 檢查是否存在於 likesTable
+          img_url: postsTable.image,
+          start: postsTable.createdAt,
+          author: usersTable.name,
+        }
+      })
       .from(postsTable)
+      .leftJoin(proposalsTable, eq(postsTable.proposalId, proposalsTable.id))
+      .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
+      .leftJoin(likesTable, and(eq(likesTable.postId, postsTable.id), eq(likesTable.userId, userId))) // 假設 userId 來自 req.body
       .where(eq(postsTable.proposalId, proposalId))
       .orderBy(desc(postsTable.createdAt))
       .limit(99);
@@ -274,23 +289,36 @@ app.post("/like", async (req, res) => {
       .limit(1);
 
     if (existingLike.length > 0) {
-      // Like exists, so remove it
-      await db
-        .delete(likesTable)
-        .where(
-          and(eq(likesTable.userId, userId), eq(likesTable.postId, postId))
-        );
+        // Like exists, so remove it
+        await db
+          .delete(likesTable)
+          .where(and(eq(likesTable.userId, userId), eq(likesTable.postId, postId)));
+        await db.execute(sql`
+          UPDATE ${postsTable}
+          SET likes = likes - 1
+          WHERE id = ${postId}
+          `);
 
-      res.status(200).json({ message: "Like removed successfully" });
-    } else {
-      // Like doesn't exist, so add it
-      const newLike = await db
-        .insert(likesTable)
-        .values({ userId, postId })
-        .returning();
+          // .update(postsTable)
+          // .set({
+          //   likes: sql`${postsTable.likes} - 1` as any,
+          // })
+          // .where(eq(postsTable.id, postId));
+        res.status(200).json({ message: "Like removed successfully" });
+      } else {
+        // Like doesn't exist, so add it
+        await db.execute(sql`
+          UPDATE ${postsTable}
+          SET likes = likes + 1
+          WHERE id = ${postId}
+          `);
+        const newLike = await db
+          .insert(likesTable)
+          .values({ userId, postId })
+          .returning();
+        res.status(201).json(newLike[0]);
+      }
 
-      res.status(201).json(newLike[0]);
-    }
   } catch (error) {
     console.error("Error adding like:", error);
     res.status(500).json({ error: "Internal server error" });
