@@ -8,6 +8,20 @@
       "when": 1725676957959,
       "tag": "0000_thin_sauron",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1725679374020,
+      "tag": "0001_funny_centennial",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1725680721234,
+      "tag": "0002_funny_korath",
+      "breakpoints": true
     }
   ]
 }
