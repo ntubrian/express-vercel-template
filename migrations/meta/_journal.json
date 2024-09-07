@@ -71,6 +71,27 @@
       "when": 1725735307685,
       "tag": "0009_dear_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1725748942885,
+      "tag": "0010_lean_rockslide",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1725749674605,
+      "tag": "0011_short_king_cobra",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1725749692714,
+      "tag": "0012_faulty_firedrake",
+      "breakpoints": true
     }
   ]
 }

@@ -105,12 +105,17 @@ export const visitsTable = pgTable(
       .notNull()
       .references(() => usersTable.id),
     spotId: serial("spot_id").notNull(),
+    img_url: text("img_url").notNull(),
     visitedAt: timestamp("visited_at").notNull().defaultNow(),
   },
   (table) => ({
     unq: unique().on(table.userId, table.spotId),
   })
 );
+export const spotsTable = pgTable("spots_table", {
+  id: serial("id").notNull().primaryKey(),
+  img_url: text("img_url").notNull(),
+});
 export type InsertUser = typeof usersTable.$inferInsert;
 export type SelectUser = typeof usersTable.$inferSelect;
 export type InsertPost = typeof postsTable.$inferInsert;
@@ -126,3 +131,5 @@ export type InsertLike = typeof likesTable.$inferInsert;
 export type SelectLike = typeof likesTable.$inferSelect;
 export type InsertVisit = typeof visitsTable.$inferInsert;
 export type SelectVisit = typeof visitsTable.$inferSelect;
+export type InsertSpots = typeof visitsTable.$inferInsert;
+export type SelectSpots = typeof visitsTable.$inferSelect;

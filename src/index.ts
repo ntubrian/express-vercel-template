@@ -19,6 +19,7 @@ import {
   visitsTable,
   SelectPost,
   SelectComment,
+  spotsTable,
 } from "./schema.js";
 import { eq, and, desc, sql } from "drizzle-orm";
 import dotenv from "dotenv";
@@ -105,37 +106,44 @@ app.get("/fetchProposals", async (req, res) => {
 
 app.get("/fetchPosts", async (req, res) => {
   try {
-
-
     const { proposalId, userId } = req.query;
 
     const posts = await db
       .select({
-          id: postsTable.id,
-          name: postsTable.name,
-          introduction: postsTable.description,
-          proposal: proposalsTable.name,
-          likes: postsTable.likes,
-          liked: sql`CASE WHEN ${likesTable.userId} IS NOT NULL THEN true ELSE false END`.as('liked'), // 檢查是否存在於 likesTable
-          img_url: postsTable.image,
-          start: postsTable.createdAt,
-          author: usersTable.name,
+        id: postsTable.id,
+        name: postsTable.name,
+        introduction: postsTable.description,
+        proposal: proposalsTable.name,
+        likes: postsTable.likes,
+        liked:
+          sql`CASE WHEN ${likesTable.userId} IS NOT NULL THEN true ELSE false END`.as(
+            "liked"
+          ), // 檢查是否存在於 likesTable
+        img_url: postsTable.image,
+        start: postsTable.createdAt,
+        author: usersTable.name,
       })
       .from(postsTable)
       .leftJoin(proposalsTable, eq(postsTable.proposalId, proposalsTable.id))
       .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
-      .leftJoin(likesTable, and(eq(likesTable.postId, postsTable.id), eq(likesTable.userId, userId as string))) // 假設 userId 來自 req.body
+      .leftJoin(
+        likesTable,
+        and(
+          eq(likesTable.postId, postsTable.id),
+          eq(likesTable.userId, userId as string)
+        )
+      ) // 假設 userId 來自 req.body
       .where(eq(postsTable.proposalId, proposalId as string))
       .orderBy(desc(postsTable.createdAt))
       .limit(99);
 
-    res.status(200).json({posts});
+    res.status(200).json({ posts });
   } catch (error) {
     console.error("Error adding post:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
-// patchPosts 
+// patchPosts
 
 app.get("/fetchComments", async (req, res) => {
   try {
@@ -290,36 +298,37 @@ app.post("/like", async (req, res) => {
       .limit(1);
 
     if (existingLike.length > 0) {
-        // Like exists, so remove it
-        await db
-          .delete(likesTable)
-          .where(and(eq(likesTable.userId, userId), eq(likesTable.postId, postId)));
-        await db.execute(sql`
+      // Like exists, so remove it
+      await db
+        .delete(likesTable)
+        .where(
+          and(eq(likesTable.userId, userId), eq(likesTable.postId, postId))
+        );
+      await db.execute(sql`
           UPDATE ${postsTable}
           SET likes = likes - 1
           WHERE id = ${postId}
           `);
 
-          // .update(postsTable)
-          // .set({
-          //   likes: sql`${postsTable.likes} - 1` as any,
-          // })
-          // .where(eq(postsTable.id, postId));
-        res.status(200).json({ message: "Like removed successfully" });
-      } else {
-        // Like doesn't exist, so add it
-        await db.execute(sql`
+      // .update(postsTable)
+      // .set({
+      //   likes: sql`${postsTable.likes} - 1` as any,
+      // })
+      // .where(eq(postsTable.id, postId));
+      res.status(200).json({ message: "Like removed successfully" });
+    } else {
+      // Like doesn't exist, so add it
+      await db.execute(sql`
           UPDATE ${postsTable}
           SET likes = likes + 1
           WHERE id = ${postId}
           `);
-        const newLike = await db
-          .insert(likesTable)
-          .values({ userId, postId })
-          .returning();
-        res.status(201).json(newLike[0]);
-      }
-
+      const newLike = await db
+        .insert(likesTable)
+        .values({ userId, postId })
+        .returning();
+      res.status(201).json(newLike[0]);
+    }
   } catch (error) {
     console.error("Error adding like:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -328,10 +337,10 @@ app.post("/like", async (req, res) => {
 
 app.post("/visit", async (req, res) => {
   try {
-    const { userId, spotId }: InsertVisit = req.body;
+    const { userId, spotId, img_url } = req.body;
 
     // Validate input
-    if (!spotId || !userId) {
+    if (!spotId || !userId || !img_url) {
       return res.status(400).json({ error: "Spot and userId are required" });
     }
 
@@ -343,13 +352,25 @@ app.post("/visit", async (req, res) => {
       )
       .limit(1);
 
+    await db
+      .update(spotsTable)
+      .set({ img_url: img_url })
+      .where(eq(spotsTable.id, spotId));
+
     if (existingVisit.length > 0) {
-      res.status(200).json({ message: "You have already visited this place." });
+      const newVisit = await db
+        .update(visitsTable)
+        .set({ img_url: img_url, visitedAt: sql`NOW()` })
+        .where(
+          and(eq(visitsTable.userId, userId), eq(visitsTable.spotId, spotId))
+        )
+        .returning();
+      res.status(200).json(newVisit[0]);
     } else {
       // Like doesn't exist, so add it
       const newVisit = await db
         .insert(visitsTable)
-        .values({ userId, spotId })
+        .values({ userId, spotId, img_url })
         .returning();
 
       res.status(201).json(newVisit[0]);
