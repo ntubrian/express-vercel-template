@@ -25,8 +25,10 @@ export const postsTable = pgTable("posts_table", {
   proposalId: uuid("proposal_id")
     .notNull()
     .references(() => proposalsTable.id, { onDelete: "cascade" }),
+  name: text("name").notNull().default("Untitled"),
   description: text("description").notNull(),
   image: text("image").notNull(),
+  likes: integer("likes").notNull().default(0),
   userId: uuid("user_id")
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
