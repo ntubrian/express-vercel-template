@@ -38,6 +38,7 @@ export const postsTable = pgTable("posts_table", {
 });
 export const proposalsTable = pgTable("proposals_table", {
   id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
   description: text("description").notNull(),
   image: text("image").notNull(),
   userId: uuid("user_id")
@@ -52,9 +53,10 @@ export const proposalsTable = pgTable("proposals_table", {
 });
 export const activitiesTable = pgTable("activities_table", {
   id: uuid("id").defaultRandom().primaryKey(),
-  proposalId: uuid("proposal_id")
-    .notNull()
-    .references(() => proposalsTable.id, { onDelete: "cascade" }),
+
+  // proposalId: uuid("proposal_id") // 去掉
+  //   .notNull()
+  //   .references(() => proposalsTable.id, { onDelete: "cascade" }),
   description: text("description").notNull(),
   image: text("image").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -101,6 +103,7 @@ export const visitsTable = pgTable(
       .notNull()
       .references(() => usersTable.id),
     spotId: serial("spot_id").notNull(),
+    visitedAt: timestamp("visited_at").notNull().defaultNow(),
   },
   (table) => ({
     unq: unique().on(table.userId, table.spotId),
@@ -110,6 +113,7 @@ export type InsertUser = typeof usersTable.$inferInsert;
 export type SelectUser = typeof usersTable.$inferSelect;
 export type InsertPost = typeof postsTable.$inferInsert;
 export type SelectPost = typeof postsTable.$inferSelect;
+export type PatchPost = typeof postsTable.$inferSelect;
 export type InsertProposal = typeof proposalsTable.$inferInsert;
 export type SelectProposal = typeof proposalsTable.$inferSelect;
 export type InsertActivity = typeof activitiesTable.$inferInsert;

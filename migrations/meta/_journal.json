@@ -43,6 +43,13 @@
       "when": 1725716896317,
       "tag": "0005_rich_valkyrie",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1725729918570,
+      "tag": "0006_previous_kat_farrell",
+      "breakpoints": true
     }
   ]
 }
