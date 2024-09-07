@@ -22,9 +22,9 @@ export const usersTable = pgTable("users_table", {
 });
 export const postsTable = pgTable("posts_table", {
   id: uuid("id").defaultRandom().primaryKey(),
-  activityId: uuid("activity_id")
+  proposalId: uuid("proposal_id")
     .notNull()
-    .references(() => activitiesTable.id, { onDelete: "cascade" }),
+    .references(() => proposalsTable.id, { onDelete: "cascade" }),
   description: text("description").notNull(),
   image: text("image").notNull(),
   userId: uuid("user_id")

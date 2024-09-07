@@ -105,11 +105,11 @@ app.get("/fetchProposals", async (req, res) => {
 
 app.get("/fetchPosts", async (req, res) => {
   try {
-    const { activityId }: SelectPost = req.body;
+    const { proposalId }: SelectPost = req.body;
     const posts = await db
       .select()
       .from(postsTable)
-      .where(eq(postsTable.activityId, activityId))
+      .where(eq(postsTable.proposalId, proposalId))
       .orderBy(desc(postsTable.createdAt))
       .limit(99);
 
@@ -146,7 +146,7 @@ app.post("/createUser", async (req, res) => {
     if (!name || !age || !email) {
       return res
         .status(400)
-        .json({ error: "Description, image, and activityId are required" });
+        .json({ error: "Description, image, and proposalId are required" });
     }
 
     // Insert new proposal
@@ -186,45 +186,45 @@ app.post("/createProposal", async (req, res) => {
   }
 });
 
-app.post("/createActivity", async (req, res) => {
-  try {
-    const { description, image, proposalId }: InsertActivity = req.body;
+// app.post("/createActivity", async (req, res) => {
+//   try {
+//     const { description, image, proposalId }: InsertActivity = req.body;
 
-    // Validate input
-    if (!description || !image || !proposalId) {
-      return res
-        .status(400)
-        .json({ error: "Description, image and proposal ID are required" });
-    }
+//     // Validate input
+//     if (!description || !image || !proposalId) {
+//       return res
+//         .status(400)
+//         .json({ error: "Description, image and proposal ID are required" });
+//     }
 
-    // Insert new user
-    const newActivity = await db
-      .insert(activitiesTable)
-      .values({ description, image, proposalId })
-      .returning();
+//     // Insert new user
+//     const newActivity = await db
+//       .insert(activitiesTable)
+//       .values({ description, image, proposalId })
+//       .returning();
 
-    res.status(201).json(newActivity[0]);
-  } catch (error) {
-    console.error("Error adding user:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+//     res.status(201).json(newActivity[0]);
+//   } catch (error) {
+//     console.error("Error adding user:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 app.post("/createPost", async (req, res) => {
   try {
-    const { activityId, description, image, userId }: InsertPost = req.body;
+    const { proposalId, description, image, userId }: InsertPost = req.body;
 
     // Validate input
-    if (!description || !image || !activityId || !userId) {
+    if (!description || !image || !proposalId || !userId) {
       return res
         .status(400)
-        .json({ error: "Description, image, and activityId are required" });
+        .json({ error: "Description, image, and proposalId are required" });
     }
 
     // Insert new post
     const newPost = await db
       .insert(postsTable)
-      .values({ activityId, description, image, userId })
+      .values({ proposalId, description, image, userId })
       .returning();
 
     res.status(201).json(newPost[0]);
@@ -331,35 +331,35 @@ app.post("/visit", async (req, res) => {
   }
 });
 
-app.get("/test", async (req, res) => {
-  try {
-    const [result] = await db
-      .select({
-        activity: activitiesTable,
-        proposal: proposalsTable,
-      })
-      .from(activitiesTable)
-      .innerJoin(
-        proposalsTable,
-        eq(activitiesTable.proposalId, proposalsTable.id)
-      )
-      .where(eq(activitiesTable.id, "0ce544f4-14fa-4816-9b2f-510749e35655"))
-      .limit(1);
+// app.get("/test", async (req, res) => {
+//   try {
+//     const [result] = await db
+//       .select({
+//         activity: activitiesTable,
+//         proposal: proposalsTable,
+//       })
+//       .from(activitiesTable)
+//       .innerJoin(
+//         proposalsTable,
+//         eq(activitiesTable.proposalId, proposalsTable.id)
+//       )
+//       .where(eq(activitiesTable.id, "0ce544f4-14fa-4816-9b2f-510749e35655"))
+//       .limit(1);
 
-    if (result) {
-      res.send([
-        {
-          Activity: result.activity.description,
-          Proposal: result.proposal.description,
-        },
-      ]);
-    } else {
-      res.status(404).json({ error: "No activity found with the given ID" });
-    }
-  } catch (e) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+//     if (result) {
+//       res.send([
+//         {
+//           Activity: result.activity.description,
+//           Proposal: result.proposal.description,
+//         },
+//       ]);
+//     } else {
+//       res.status(404).json({ error: "No activity found with the given ID" });
+//     }
+//   } catch (e) {
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 app.listen(3000, () => {
   console.info("Server is running on http://localhost:3000");
