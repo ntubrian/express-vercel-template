@@ -124,6 +124,7 @@ app.get("/fetchPosts", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+// patchPosts 
 
 app.get("/fetchComments", async (req, res) => {
   try {
@@ -168,10 +169,10 @@ app.post("/createUser", async (req, res) => {
 
 app.post("/createProposal", async (req, res) => {
   try {
-    const { description, image, userId }: InsertProposal = req.body;
+    const { description, image, userId, name }: InsertProposal = req.body;
 
     // Validate input
-    if (!description || !image || !userId) {
+    if (!description || !image || !userId || !name) {
       return res
         .status(400)
         .json({ error: "Description and image are required" });
@@ -180,7 +181,7 @@ app.post("/createProposal", async (req, res) => {
     // Insert new proposal
     const newProposal = await db
       .insert(proposalsTable)
-      .values({ description, image, userId })
+      .values({ description, image, userId, name })
       .returning();
 
     res.status(201).json(newProposal[0]);
