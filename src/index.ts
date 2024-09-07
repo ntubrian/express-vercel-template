@@ -111,7 +111,6 @@ app.get("/fetchPosts", async (req, res) => {
 
     const posts = await db
       .select({
-        post: {
           id: postsTable.id,
           name: postsTable.name,
           introduction: postsTable.description,
@@ -121,7 +120,6 @@ app.get("/fetchPosts", async (req, res) => {
           img_url: postsTable.image,
           start: postsTable.createdAt,
           author: usersTable.name,
-        }
       })
       .from(postsTable)
       .leftJoin(proposalsTable, eq(postsTable.proposalId, proposalsTable.id))
