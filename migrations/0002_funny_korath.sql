@@ -1,0 +1,1 @@
+ALTER TABLE "proposals_table" ALTER COLUMN "status" SET DEFAULT 'reviewing';
