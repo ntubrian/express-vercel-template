@@ -1,6 +1,6 @@
 {
-  "id": "2098ff93-be16-4dbf-bc85-aae39705e83e",
-  "prevId": "0a27270c-e462-4da9-b06c-4f71cc125d2b",
+  "id": "5c745918-8cc8-4157-ab4b-d64ccbf1c114",
+  "prevId": "2098ff93-be16-4dbf-bc85-aae39705e83e",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -385,13 +385,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "spots": {
-          "name": "spots",
-          "type": "integer[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'"
         }
       },
       "indexes": {},
@@ -403,6 +396,58 @@
           "nullsNotDistinct": false,
           "columns": [
             "email"
+          ]
+        }
+      }
+    },
+    "public.visits_table": {
+      "name": "visits_table",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "spot_id": {
+          "name": "spot_id",
+          "type": "serial",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "visits_table_user_id_users_table_id_fk": {
+          "name": "visits_table_user_id_users_table_id_fk",
+          "tableFrom": "visits_table",
+          "tableTo": "users_table",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "visits_table_user_id_spot_id_unique": {
+          "name": "visits_table_user_id_spot_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id",
+            "spot_id"
           ]
         }
       }
