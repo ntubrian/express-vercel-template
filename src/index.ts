@@ -105,7 +105,15 @@ app.get("/fetchProposals", async (req, res) => {
 
 app.get("/fetchPosts", async (req, res) => {
   try {
+<<<<<<< Updated upstream
     const { proposalId, userId } = req.body;
+=======
+<<<<<<< Updated upstream
+    const { activityId }: SelectPost = req.body;
+=======
+    const { proposalId, userId } = req.query;
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     const posts = await db
       .select({
         post: {
@@ -121,10 +129,21 @@ app.get("/fetchPosts", async (req, res) => {
         }
       })
       .from(postsTable)
+<<<<<<< Updated upstream
       .leftJoin(proposalsTable, eq(postsTable.proposalId, proposalsTable.id))
       .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
       .leftJoin(likesTable, and(eq(likesTable.postId, postsTable.id), eq(likesTable.userId, userId))) // 假設 userId 來自 req.body
       .where(eq(postsTable.proposalId, proposalId))
+=======
+<<<<<<< Updated upstream
+      .where(eq(postsTable.activityId, activityId))
+=======
+      .leftJoin(proposalsTable, eq(postsTable.proposalId, proposalsTable.id))
+      .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
+      .leftJoin(likesTable, and(eq(likesTable.postId, postsTable.id), eq(likesTable.userId, userId as string))) // 假設 userId 來自 req.body
+      .where(eq(postsTable.proposalId, proposalId as string))
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
       .orderBy(desc(postsTable.createdAt))
       .limit(99);
 
@@ -138,11 +157,11 @@ app.get("/fetchPosts", async (req, res) => {
 
 app.get("/fetchComments", async (req, res) => {
   try {
-    const { postId }: SelectComment = req.body;
+    const { postId } = req.query;
     const comments = await db
       .select()
       .from(commentsTable)
-      .where(eq(commentsTable.postId, postId))
+      .where(eq(commentsTable.postId, postId as string))
       .orderBy(desc(commentsTable.createdAt))
       .limit(99);
 
