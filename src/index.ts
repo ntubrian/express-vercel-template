@@ -65,43 +65,39 @@ app.get("/fetchUserData", async (req, res) => {
 
 app.get("/fetchActivities", async (req, res) => {
   try {
-    const activities = await db
+    const proposals = await db
       .select({
-        activity: activitiesTable,
         proposal: {
           id: proposalsTable.id,
           description: proposalsTable.description,
+          image: proposalsTable.image,
           userId: proposalsTable.userId,
           status: proposalsTable.status,
+          createdAt: proposalsTable.createdAt,
         },
         user: {
           id: usersTable.id,
           name: usersTable.name, // Assuming there's a name field in the users table
         },
       })
-      .from(activitiesTable)
-      .leftJoin(
-        proposalsTable,
-        eq(activitiesTable.proposalId, proposalsTable.id)
-      )
+      .from(proposalsTable)
       .leftJoin(usersTable, eq(proposalsTable.userId, usersTable.id))
-      .orderBy(activitiesTable.createdAt)
+      .orderBy(proposalsTable.createdAt)
       .limit(99);
 
-    const canvasDrafts = activities.map(({ activity, proposal, user }) => ({
-      id: activity.id,
-      name:
-        proposal?.description || `Activity for Proposal ${activity.proposalId}`,
-      introduction: activity.description,
+    const canvasDrafts = proposals.map(({ proposal, user }) => ({
+      id: proposal.id,
+      name: proposal.description,
+      introduction: proposal.description,
       address: {
         text: "臺北市中山區圓山里8鄰中山北路三段181號",
         map: "https://maps.app.goo.gl/sQKx4n3WctXuS5Bw8",
         longitude: "123",
         latitude: "132",
       },
-      img_url: activity.image,
-      start: activity.createdAt.toISOString(),
-      status: proposal?.status,
+      img_url: proposal.image,
+      start: proposal.createdAt.toISOString(),
+      status: proposal.status,
       author: user?.name || "Unknown",
     }));
 
