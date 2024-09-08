@@ -84,7 +84,7 @@ app.get("/fetchProposals", async (req, res) => {
       })
       .from(proposalsTable)
       .leftJoin(usersTable, eq(proposalsTable.userId, usersTable.id))
-      .orderBy(proposalsTable.createdAt)
+      .orderBy(desc(proposalsTable.createdAt))
       .limit(99);
 
     const canvasDrafts = proposals.map(({ proposal, user }) => ({
@@ -349,7 +349,7 @@ app.get("/fetchSpots", async (req, res) => {
     console.error("Error fetching spots:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-})
+});
 
 app.post("/visit", async (req, res) => {
   try {
