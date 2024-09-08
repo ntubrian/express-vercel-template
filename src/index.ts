@@ -236,7 +236,8 @@ app.post("/createProposal", async (req, res) => {
 
 app.post("/createPost", async (req, res) => {
   try {
-    const { proposalId, description, image, userId }: InsertPost = req.body;
+    const { proposalId, description, name, image, userId }: InsertPost =
+      req.body;
 
     // Validate input
     if (!description || !image || !proposalId || !userId) {
@@ -248,7 +249,7 @@ app.post("/createPost", async (req, res) => {
     // Insert new post
     const newPost = await db
       .insert(postsTable)
-      .values({ proposalId, description, image, userId })
+      .values({ proposalId, description, name, image, userId })
       .returning();
 
     res.status(201).json(newPost[0]);
