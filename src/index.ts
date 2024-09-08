@@ -335,6 +335,21 @@ app.post("/like", async (req, res) => {
   }
 });
 
+app.get("/fetchSpots", async (req, res) => {
+  try {
+    const { userId } = req.query;
+    const spots = await db
+      .select()
+      .from(visitsTable)
+      .where(eq(visitsTable.userId, userId as string))
+      .orderBy(desc(visitsTable.visitedAt));
+    res.status(200).json(spots);
+  } catch (error) {
+    console.error("Error fetching spots:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+})
+
 app.post("/visit", async (req, res) => {
   try {
     const { userId, spotId, img_url } = req.body;
