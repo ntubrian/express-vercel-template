@@ -134,7 +134,7 @@ app.get("/fetchPosts", async (req, res) => {
         )
       ) // 假設 userId 來自 req.body
       .where(eq(postsTable.proposalId, proposalId as string))
-      .orderBy(desc(postsTable.createdAt))
+      .orderBy(desc(postsTable.likes))
       .limit(99);
 
     res.status(200).json({ posts });
